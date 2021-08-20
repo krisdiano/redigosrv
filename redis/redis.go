@@ -53,8 +53,8 @@ func ListenAndServe(addr string, handler Handler, opts ...Option) error {
 	return server.ListenAndServe(opts...)
 }
 
-func HandleFunc(ctx context.Context, pattern string, handler func(context.Context, ResponseWriter, *Request)) {
-	DefaultServeMux.HandleFunc(ctx, pattern, handler)
+func HandleFunc(pattern string, handler func(context.Context, ResponseWriter, *Request)) {
+	DefaultServeMux.HandleFunc(pattern, handler)
 }
 
 func (srv *Server) ListenAndServe(opts ...Option) error {

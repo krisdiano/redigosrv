@@ -35,7 +35,7 @@ func (mux *ServeMux) ServeRedis(ctx context.Context, w ResponseWriter, r *Reques
 	h.ServeRedis(ctx, w, r)
 }
 
-func (mux *ServeMux) HandleFunc(ctx context.Context, pattern string, handler func(context.Context, ResponseWriter, *Request), middlewares ...MiddlewareFunc) {
+func (mux *ServeMux) HandleFunc(pattern string, handler func(context.Context, ResponseWriter, *Request), middlewares ...MiddlewareFunc) {
 	if handler == nil {
 		panic("redis: nil handler")
 	}

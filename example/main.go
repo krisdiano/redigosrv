@@ -79,7 +79,7 @@ func ExampleServer() {
 		panic(err)
 	}
 
-	redis.HandleFunc(context.Background(), "GET", func(_ context.Context, w redis.ResponseWriter, r *redis.Request) {
+	redis.HandleFunc("GET", func(_ context.Context, w redis.ResponseWriter, r *redis.Request) {
 		fmt.Printf("rece get cmd, req %v\n", r)
 		w.Text("OK")
 	})
