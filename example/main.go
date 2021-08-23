@@ -12,12 +12,6 @@ import (
 	"github.com/Saner-Lee/redigosrv/redis"
 )
 
-type PanicLoggerAdaptor func(string, ...interface{})
-
-func (fn PanicLoggerAdaptor) Error(msg string, args ...interface{}) {
-	fn(msg, args...)
-}
-
 type logger struct {
 	mu sync.RWMutex
 	m  map[string]string
@@ -74,23 +68,29 @@ func (l *logger) AddMeta(k, v string) {
 }
 
 func ExampleServer() {
+	// 限制连接数量为1024
+	// 达到上限时，不完全阻塞
+	// 阻塞到500ms未等到可用连接返回redis错误
 	sema, err := redis.NewSemaphore(1024, redis.WithBlock(false), redis.WithWaitDura(500*time.Millisecond))
 	if err != nil {
 		panic(err)
 	}
 
+	// cmd get -> handler
 	redis.HandleFunc("GET", func(_ context.Context, w redis.ResponseWriter, r *redis.Request) {
 		fmt.Printf("rece get cmd, req %v\n", r)
 		w.Text("OK")
 	})
 
-	// 连接限制策略
 	opts := []redis.Option{
+		// 连接限制策略
 		redis.WithSemaphore(sema),
+		// 异常捕获机制
 		redis.WithPanicStack(func(format string, args ...interface{}) {
 			fmt.Printf("redis rece a panic, err %s", fmt.Sprintf(format, args...))
 			debug.PrintStack()
 		}),
+		// access日志，为监控提供数据源
 		redis.WithLoggerFactory(func() redis.Logger { return &logger{} }),
 	}
 
